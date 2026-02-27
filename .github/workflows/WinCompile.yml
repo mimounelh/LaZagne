@@ -1,53 +1,38 @@
-name: Build and Upload LaZagne Release
+name: Build LaZagne Executable
 
 on:
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch:  # Allows you to trigger the build manually
   push:
     branches:
-      - main        # Or whatever your main branch is
-    tags:
-      - 'v*'        # Also trigger on version tags
+      - master        # Triggers automatically if you update the master branch
+      - main
 
 jobs:
   build:
-
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout Code
+      uses: actions/checkout@v4
 
     - name: Set up Python 3.11
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: 3.11
+        python-version: '3.11'
 
-    - name: Install Dependencies
+    - name: Install Dependencies and PyInstaller
       run: |
+        python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install pyinstaller
 
-    - name: Build Executable with PyInstaller
+    - name: Build Executable
       run: |
         cd Windows
         pyinstaller lazagne.spec
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload Executable as Artifact
+      uses: actions/upload-artifact@v4
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: false
-
-    - name: Upload Release Asset
-      id: upload-release-asset 
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: Windows/dist/lazagne.exe
-        asset_name: LaZagne.exe
-        asset_content_type: application/octet-stream
+        name: LaZagne-Windows-EXE
+        path: Windows/dist/lazagne.exe
