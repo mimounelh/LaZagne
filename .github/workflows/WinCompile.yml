@@ -1,9 +1,12 @@
 name: Build and Upload LaZagne Release
 
 on:
+  workflow_dispatch:  # Manual trigger
   push:
+    branches:
+      - main        # Or whatever your main branch is
     tags:
-      - 'v*' # Matches tags like v1.0, v20.15.10
+      - 'v*'        # Also trigger on version tags
 
 jobs:
   build:
