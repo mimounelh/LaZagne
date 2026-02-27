@@ -2,6 +2,15 @@
 __The LaZagne Project !!!__
 ==
 
+Here is how you can pull in the original creator's updates:
+
+1. Navigate to the main page of **your forked repository** on GitHub.
+2. Just above the list of files, look for a banner that says something like: *"This branch is X commits behind AlessandroZ:master"*.
+3. Click the **Sync fork** dropdown menu located on the right side of that banner.
+4. Click the green **Update branch** button.
+
+That’s it! GitHub will automatically pull all the new updates from the original LaZagne project into your fork.
+
 Description
 ----
 The __LaZagne project__ is an open source application used to __retrieve lots of passwords__ stored on a local computer. 
