@@ -1,0 +1,48 @@
+name: Build Portable Linux Executable
+
+on:
+  workflow_dispatch:  # Allows manual triggering
+  push:
+    branches:
+      - master
+      - main
+
+jobs:
+  build:
+    # THE SECRET SAUCE: Use an older runner to ensure glibc portability
+    runs-on: ubuntu-20.04
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install System Dependencies
+      # Linux environments often need C-compilers and headers to build 
+      # Python cryptography libraries from scratch.
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential python3-dev libffi-dev libssl-dev
+
+    - name: Install Python Dependencies and PyInstaller
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+
+    - name: Build Executable
+      run: |
+        # PyInstaller bundles the Python interpreter and all libraries into one ELF file.
+        # If there isn't a specific lazagne.spec file for Linux, you compile the main script directly:
+        pyinstaller --onefile laZagne.py 
+
+    - name: Upload Executable as Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: LaZagne-Linux-Binary
+        # PyInstaller places the finished binary in the 'dist' folder
+        path: dist/laZagne
