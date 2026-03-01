@@ -2,10 +2,10 @@ name: Build LaZagne Executable
 
 on:
   workflow_dispatch:  # Allows you to trigger the build manually
-  push:
-    branches:
-      - master        # Triggers automatically if you update the master branch
-      - main
+  #push:
+  #  branches:
+  #    - master        # Triggers automatically if you update the master branch
+  #    - main
 
 jobs:
   build:
