@@ -11,10 +11,10 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     
-    # THE MAGIC: Run this entire job inside an older Docker container
-    # python:3.11-buster is Debian 10, which uses the very old glibc 2.28
+    # THE FIX: Upgraded to Debian 11 (Bullseye) 
+    # Repositories are alive, and glibc is still a highly portable version (2.31)
     container:
-      image: python:3.11-buster
+      image: python:3.11-bullseye
 
     steps:
     - name: Checkout Code
@@ -35,7 +35,7 @@ jobs:
     - name: Build Executable
       run: |
         cd Linux
-        echo "[*] Running PyInstaller inside Debian 10 container..."
+        echo "[*] Running PyInstaller inside Debian 11 container..."
         pyinstaller --onefile laZagne.py 
 
     - name: Upload Executable as Artifact
