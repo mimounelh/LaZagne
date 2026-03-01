@@ -11,8 +11,7 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     
-    # THE FIX: Upgraded to Debian 11 (Bullseye) 
-    # Repositories are alive, and glibc is still a highly portable version (2.31)
+    # Using Debian 11 (Bullseye) container to maintain glibc 2.31 portability
     container:
       image: python:3.11-bullseye
 
@@ -35,9 +34,11 @@ jobs:
     - name: Build Executable
       run: |
         cd Linux
-        echo "[*] Running PyInstaller inside Debian 11 container..."
-        # THE FIX: --collect-all forces PyInstaller to bundle all the dynamic submodules!
-        pyinstaller --onefile --collect-all lazagne laZagne.py 
+        echo "[*] Running PyInstaller with official project hooks..."
+        
+        # THE FIX: We are now explicitly telling PyInstaller to look in the current 
+        # directory (.) for the author's custom hook files before building.
+        pyinstaller --additional-hooks-dir=. -F --onefile laZagne.py 
 
     - name: Upload Executable as Artifact
       uses: actions/upload-artifact@v4
