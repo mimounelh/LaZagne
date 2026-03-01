@@ -1,7 +1,7 @@
-name: Build Statically Linked Linux Executable
+name: Build Portable Linux Executable
 
 on:
-  workflow_dispatch:  # Allows manual triggering
+  workflow_dispatch:
   push:
     branches:
       - master
@@ -9,45 +9,37 @@ on:
 
 jobs:
   build:
-    # También esta ubuntu-latest
     runs-on: ubuntu-22.04
+    
+    # THE MAGIC: Run this entire job inside an older Docker container
+    # python:3.11-buster is Debian 10, which uses the very old glibc 2.28
+    container:
+      image: python:3.11-buster
 
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-
     - name: Install System Dependencies
-      # We need 'patchelf' because StaticX uses it to rewrite the ELF binary headers
       run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential python3-dev libffi-dev libssl-dev patchelf
+        # We are root inside the container, so no 'sudo' is needed
+        apt-get update
+        apt-get install -y build-essential libffi-dev libssl-dev
 
-    - name: Install Python Dependencies, PyInstaller, and StaticX
+    - name: Install Python Dependencies and PyInstaller
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pyinstaller staticx
+        pip install pyinstaller
 
-    - name: Build and Statically Link Executable
+    - name: Build Executable
       run: |
         cd Linux
-        
-        # 1. Build the standard dynamic PyInstaller binary first
-        echo "[*] Running PyInstaller..."
+        echo "[*] Running PyInstaller inside Debian 10 container..."
         pyinstaller --onefile laZagne.py 
-        
-        # 2. Use StaticX to bundle glibc and create a fully static executable
-        echo "[*] Running StaticX..."
-        staticx dist/laZagne dist/laZagne-static
 
-    - name: Upload Static Executable as Artifact
+    - name: Upload Executable as Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: LaZagne-Linux-Static
-        # Upload the new staticx-generated file instead of the PyInstaller one
-        path: Linux/dist/laZagne-static
+        name: LaZagne-Linux-Portable
+        path: Linux/dist/laZagne
