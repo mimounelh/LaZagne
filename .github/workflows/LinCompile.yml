@@ -2,10 +2,10 @@ name: Build Portable Linux Executable
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
-      - main
+  #push:
+  #  branches:
+  #    - master
+  #    - main
 
 jobs:
   build:
@@ -36,7 +36,8 @@ jobs:
       run: |
         cd Linux
         echo "[*] Running PyInstaller inside Debian 11 container..."
-        pyinstaller --onefile laZagne.py 
+        # THE FIX: --collect-all forces PyInstaller to bundle all the dynamic submodules!
+        pyinstaller --onefile --collect-all lazagne laZagne.py 
 
     - name: Upload Executable as Artifact
       uses: actions/upload-artifact@v4
