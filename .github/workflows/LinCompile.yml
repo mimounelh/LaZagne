@@ -9,9 +9,8 @@ on:
 
 jobs:
   build:
-    # THE SECRET SAUCE: Use an older runner to ensure glibc portability
-    # runs-on: ubuntu-22.04
-    # # runs-on: ubuntu-latest
+    # También esta ubuntu-latest
+    # Using ubuntu-22.04 to balance glibc compatibility with GitHub's supported runners
     runs-on: ubuntu-22.04
 
     steps:
@@ -38,13 +37,13 @@ jobs:
 
     - name: Build Executable
       run: |
-        # PyInstaller bundles the Python interpreter and all libraries into one ELF file.
-        # If there isn't a specific lazagne.spec file for Linux, you compile the main script directly:
+        # Change directory into the Linux folder where laZagne.py actually lives
+        cd Linux
         pyinstaller --onefile laZagne.py 
 
     - name: Upload Executable as Artifact
       uses: actions/upload-artifact@v4
       with:
         name: LaZagne-Linux-Binary
-        # PyInstaller places the finished binary in the 'dist' folder
-        path: dist/laZagne
+        # The finished binary will be in the 'dist' folder inside the Linux directory
+        path: Linux/dist/laZagne
